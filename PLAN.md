@@ -54,27 +54,34 @@
 >
 > **GraalVM & CI/CD Pipeline Requirements:**
 >
-> 7.  **Skaffold Orchestration (`skaffold.yaml`):**
-      >     * Use the Paketo Jammy Tiny builder for GraalVM Native Images.
->     * Set `BP_NATIVE_IMAGE=true` and `BP_NATIVE_IMAGE_BUILD_ARGUMENTS: "-Ob"`.
->     * **Profile `dev`:** Namespace `dev`, load `values-dev.yaml` (Minikube).
->     * **Profile `beta`:** Namespace `beta`, load `values-beta.yaml`, set
-        >         `build.local.push: true` (Artifact Registry).
->     * **Profile `prod`:** Namespace `prod`, load `values-prod.yaml`, use
-        >         `googleCloudBuild` with `machineType: E2_HIGHMEM_8`.
-> 8.  **Helm Chart (`charts/log-receiver`):**
-      >     * Include `isLocalDev` flag and use `secretKeyRef` for sensitive data.
->     * Inject `SPRING_PROFILES_ACTIVE`.
->     * **GKE Autopilot Needs:** Deployment MUST define CPU and Memory requests
-        >         and limits.
->     * **Probes:** Deployment MUST include `startupProbe`, `livenessProbe`, and
-        >         `readinessProbe` pointing to the Actuator endpoints.
->     * **DB Routing (Values):**
-        >         * `values-dev.yaml`: `mongodb-service.dev-mongo.svc.cluster.local`
->         * `values-beta.yaml` & `prod`: `mongodb-service.mongo.svc.cluster.local`
-> 9.  **Cloud Deploy & Build:**
-      >     * Output `artifacts.json` via Skaffold. Provide `cloudbuild.yaml` and
-              >         `clouddeploy.yaml` for GCP promotion.
+> **GraalVM & CI/CD Pipeline Requirements:**
+>
+> 7.  **Helm Chart (`charts/log-receiver`):**
+      >     * Include `isLocalDev` flag.
+>     * **Dynamic Routing (ConfigMaps/Secrets):** Do NOT hardcode Mongo OR NATS
+        >         URIs in `values-*.yaml`. The Deployment MUST map `MONGO_URI`,
+        >         `NATS_URI`, and `NATS_SUBJECT` using `valueFrom: configMapKeyRef`.
+        >         Use `secretKeyRef` for all passwords/tokens.
+>     * **Environment Sizing (`values-*.yaml`):** Expose `replicaCount` and
+        >         resource requests/limits. Dev should default to 1 replica (low RAM),
+        >         Prod should default to 3+ replicas (higher RAM for batching).
+>     * **Probes:** Include `startupProbe`, `livenessProbe`, `readinessProbe`
+        >         pointing to the Actuator endpoints on the management port (8081).
+>
+> 8.  **Observability & Actuator Security:**
+      >     * Enable `/health`, `/prometheus`, and `/loggers` endpoints.
+>     * **Security:** Configure `management.server.port` to a different port
+        >         (e.g., 8081) than the main application port (e.g., 8080) to ensure
+        >         dynamic log levels cannot be exposed to the public internet.
+> 9.  **Build & Quality Enforcement Tools (`pom.xml`):**
+      >     * **JaCoCo Plugin:** Configure `jacoco-maven-plugin` with a `check` goal
+              >         that strictly enforces a minimum line and branch coverage of `0.95`.
+              >         The build MUST fail if coverage is not met.
+>     * **Checkstyle Plugin:** Configure `maven-checkstyle-plugin` to fail the
+        >         build if any line length exceeds 81 characters, or if standard Java
+        >         naming conventions are violated.
+>     * **SpotBugs Plugin:** Add `spotbugs-maven-plugin` to the build phase to
+        >         statically analyze the code and fail on high-priority code smells.
 >
 > **Output Needed:**
 > Provide `pom.xml`, Java source files, tests, `skaffold.yaml`, `cloudbuild.yaml`,
