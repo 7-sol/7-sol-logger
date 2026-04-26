@@ -1,0 +1,22 @@
+# Copyright (c) 2026 7-Sol. All rights reserved.
+apiVersion: skaffold/v4beta11
+kind: Config
+metadata:
+  name: log-receiver
+build:
+  artifacts:
+    - image: log-receiver
+      ko:
+        main: .
+manifests:
+  helm:
+    releases:
+      - name: log-receiver
+        chartPath: charts/log-receiver
+        valuesFiles:
+          - charts/log-receiver/values.yaml
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_log_receiver}}"
+          image.tag: "{{.IMAGE_TAG_log_receiver}}"
+deploy:
+  kubectl: {}

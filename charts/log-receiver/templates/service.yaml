@@ -1,0 +1,20 @@
+# Copyright (c) 2026 7-Sol. All rights reserved.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "log-receiver.fullname" . }}
+  labels:
+    {{- include "log-receiver.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: {{ .Values.service.managementPort }}
+      targetPort: management
+      protocol: TCP
+      name: management
+  selector:
+    {{- include "log-receiver.selectorLabels" . | nindent 4 }}

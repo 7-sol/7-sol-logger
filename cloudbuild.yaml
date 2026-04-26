@@ -1,0 +1,24 @@
+# Copyright (c) 2026 7-Sol. All rights reserved.
+steps:
+  - name: 'maven:3.9.9-eclipse-temurin-21'
+    entrypoint: 'mvn'
+    args: ['verify']
+
+  - name: 'gcr.io/k8s-skaffold/skaffold'
+    args:
+      - 'skaffold'
+      - 'build'
+      - '--file=skaffold.yaml'
+      - '--push=true'
+      - '--images=log-receiver'
+
+  - name: 'google/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'deploy'
+      - 'releases'
+      - 'create'
+      - 'rel-${SHORT_SHA}'
+      - '--delivery-pipeline=log-receiver-pipeline'
+      - '--region=us-central1'
+      - '--skaffold-file=skaffold.yaml'

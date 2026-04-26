@@ -1,0 +1,33 @@
+# Copyright (c) 2026 7-Sol. All rights reserved.
+
+isLocalDev: false
+
+replicaCount: 1
+
+image:
+  repository: gcr.io/my-project/log-receiver
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8080
+  managementPort: 8081
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+config:
+  natsSubject: "audit.logs"
+  retentionDays: 90
+
+env:
+  mongoUriFromConfig: "mongo-config"
+  mongoUriKey: "uri"
+  natsUriFromConfig: "nats-config"
+  natsUriKey: "uri"
