@@ -32,12 +32,12 @@ spec:
                 configMapKeyRef:
                   name: {{ .Values.env.mongoUriFromConfig }}
                   key: {{ .Values.env.mongoUriKey }}
-            - name: MONGO_USER
+            - name: SPRING_DATA_MONGODB_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.env.mongoUserFromConfig }}
                   key: {{ .Values.env.mongoUserKey }}
-            - name: MONGO_PASSWORD
+            - name: SPRING_DATA_MONGODB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.env.mongoPasswordFromSecret }}

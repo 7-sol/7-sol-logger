@@ -37,7 +37,7 @@ class NatsIngestionIntegrationTests {
     registry.add("spring.data.mongodb.uri", mongo::getReplicaSetUrl);
     registry.add("app.nats.uri", () ->
         "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222));
-    registry.add("app.nats.subject", () -> "test.audit.logs");
+    registry.add("NATS_SUBJECT", () -> "test.audit.logs");
   }
 
   @Autowired
