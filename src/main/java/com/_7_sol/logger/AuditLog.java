@@ -2,6 +2,7 @@
 package com._7_sol.logger;
 
 import java.time.Instant;
+import java.util.List;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -10,20 +11,26 @@ import org.springframework.data.mongodb.core.mapping.Document;
 /**
  * Represents an audit log document persisted in MongoDB.
  *
- * @param id The unique identifier of the log entry.
- * @param correlationId The correlation ID for tracing.
- * @param userId The ID of the user who initiated the action.
- * @param podUid The UID of the pod where the action occurred.
- * @param createdAt The timestamp when the log was created.
- * @param payload The nested action details.
+ * @param id The unique identifier of the log entry in MongoDB.
+ * @param operationId Unique identifier for the specific operation instance.
+ * @param action Semantic name of the action being performed.
+ * @param status Current status of the operation (e.g., SUCCESS, FAILURE).
+ * @param correlationId Identifier used to correlate this request.
+ * @param userId Identifier of the user initiating the request.
+ * @param podUid Unique identifier for the Kubernetes Pod instance.
+ * @param timestamp Timestamp when the audit record was first initialized.
+ * @param logs List of log entries captured during the operation.
  */
 @Document(collection = "audit_logs")
 @RegisterReflectionForBinding
 public record AuditLog(
     @Id String id,
+    String operationId,
+    String action,
+    String status,
     String correlationId,
     String userId,
     String podUid,
-    @Indexed Instant createdAt,
-    AuditLogPayload payload
+    @Indexed Instant timestamp,
+    List<LogEntry> logs
 ) {}

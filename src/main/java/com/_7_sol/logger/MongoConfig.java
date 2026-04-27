@@ -36,7 +36,7 @@ public class MongoConfig {
   public void initIndexes() {
     ReactiveIndexOperations indexOps = mongoTemplate.indexOps(AuditLog.class);
     Index ttlIndex = new Index()
-        .on("createdAt", org.springframework.data.domain.Sort.Direction.ASC)
+        .on("timestamp", org.springframework.data.domain.Sort.Direction.ASC)
         .expire(Duration.ofDays(retentionDays));
 
     indexOps.ensureIndex(ttlIndex).subscribe();

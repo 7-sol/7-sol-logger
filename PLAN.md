@@ -86,3 +86,114 @@
 > **Output Needed:**
 > Provide `pom.xml`, Java source files, tests, `skaffold.yaml`, `cloudbuild.yaml`,
 > `clouddeploy.yaml`, and the Helm chart templates/values files.
+> 
+> ## The DTO Published to NATS:
+> ```java
+> 
+> @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class OperationalAudit {
+
+    /**
+     * Unique identifier for the specific operation instance (usually the Request ID).
+     */
+    private String operationId;
+
+    /**
+     * Semantic name of the action being performed (e.g., "CREATE_ORDER").
+     */
+    private String action;
+
+    /**
+     * Current status of the operation.
+     */
+    private Status status;
+
+    /**
+     * Identifier used to correlate this request across multiple microservices.
+     */
+    private String correlationId;
+
+    /**
+     * Unique identifier for the Kubernetes Pod or instance running this code.
+     * Injected at the environment level.
+     */
+    private String podUid;
+
+    /**
+     * Identifier of the user or service account initiating the request.
+     */
+    private String userId;
+
+    /**
+     * Timestamp when the audit record was first initialized.
+     */
+    private Instant timestamp;
+
+    /**
+     * A thread-safe queue containing buffered log messages collected during the operation.
+     * Using ConcurrentLinkedQueue ensures lock-free additions from multiple reactive streams.
+     */
+    @Builder.Default
+    private Queue<LogEntry> logs = new ConcurrentLinkedQueue<>();
+
+    /**
+     * Possible termination states for an audited operation.
+     */
+    public enum Status {
+        /** Operation completed successfully. */
+        SUCCESS,
+        /** Operation failed due to an exception or error condition. */
+        FAILURE,
+        /** Operation was cancelled by the client or system. */
+        CANCELLED
+    }
+
+    /**
+     * Represents an individual log statement captured within the scope of an operation.
+     */
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LogEntry {
+        /** Time when this specific log was recorded. */
+        private Instant timestamp;
+        /** Severity level (e.g., INFO, ERROR). */
+        private String level;
+        /** The log message content. */
+        private String message;
+    }
+
+    /**
+     * Buffers a log message into the consolidated audit record.
+     * <p>
+     * Implementation Details:
+     * <ul>
+     *   <li>Ensures a maximum of 100 log entries per operation.</li>
+     *   <li>Truncates messages exceeding 1000 characters to prevent payload bloat.</li>
+     * </ul>
+     * </p>
+     *
+     * @param level   The log level (e.g., "INFO", "WARN", "ERROR").
+     * @param message The message to record.
+     */
+    public void addLog(String level, String message) {
+        // Enforce maximum size of the logs collection to protect memory
+        if (logs.size() >= 100) {
+            return;
+        }
+
+        // Truncate long messages to prevent oversized NATS payloads
+        String truncatedMessage = message != null && message.length() > 1000
+                ? message.substring(0, 997) + "..."
+                : message;
+
+        logs.add(new LogEntry(Instant.now(), level, truncatedMessage));
+    }
+}
+
+> 
+> ```
+>     

@@ -6,6 +6,7 @@ import io.nats.client.Connection;
 import io.nats.client.Nats;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,11 +57,14 @@ class NatsIngestionIntegrationTests {
     
     AuditLog logEntry = new AuditLog(
         "msg-id-1",
+        "op-id-1",
+        "UPDATE_PROFILE",
+        "SUCCESS",
         "nats-corr-1",
         "user-2",
         "pod-2",
         Instant.now(),
-        new AuditLogPayload("update", "success", "Profile updated")
+        List.of(new LogEntry(Instant.now(), "INFO", "Profile updated"))
     );
     
     // Connect, publish and wait

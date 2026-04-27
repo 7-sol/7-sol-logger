@@ -2,6 +2,7 @@
 package com._7_sol.logger;
 
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
@@ -37,11 +38,14 @@ class AuditLogRepositoryTests {
   void shouldSaveAndRetrieveAuditLog() {
     AuditLog logEntry = new AuditLog(
         null,
+        "op-1",
+        "CREATE_ORDER",
+        "SUCCESS",
         "corr-1",
         "user-1",
         "pod-1",
         Instant.now(),
-        new AuditLogPayload("login", "success", "User logged in")
+        List.of(new LogEntry(Instant.now(), "INFO", "Order created"))
     );
 
     StepVerifier.create(repository.save(logEntry))
