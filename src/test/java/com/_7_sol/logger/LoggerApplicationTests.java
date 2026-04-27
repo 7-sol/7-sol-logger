@@ -26,7 +26,7 @@ class LoggerApplicationTests {
 
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.data.mongodb.uri", mongo::getReplicaSetUrl);
+    registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
     registry.add("app.nats.uri", () ->
         "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222));
   }

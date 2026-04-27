@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
@@ -25,7 +25,7 @@ class AuditLogRepositoryTests {
 
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.data.mongodb.uri", mongo::getReplicaSetUrl);
+    registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
   }
 
   @Autowired

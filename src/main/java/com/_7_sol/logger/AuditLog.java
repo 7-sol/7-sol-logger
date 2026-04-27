@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.util.List;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -31,6 +30,23 @@ public record AuditLog(
     String correlationId,
     String userId,
     String podUid,
-    @Indexed Instant timestamp,
+    Instant timestamp,
     List<LogEntry> logs
-) {}
+) {
+  /**
+   * Canonical constructor for AuditLog.
+   *
+   * @param id The unique identifier.
+   * @param operationId The operation identifier.
+   * @param action The action name.
+   * @param status The status.
+   * @param correlationId The correlation identifier.
+   * @param userId The user identifier.
+   * @param podUid The pod identifier.
+   * @param timestamp The record timestamp.
+   * @param logs The list of log entries.
+   */
+  public AuditLog {
+    logs = (logs == null) ? List.of() : List.copyOf(logs);
+  }
+}

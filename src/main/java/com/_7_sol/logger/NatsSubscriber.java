@@ -8,6 +8,7 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
@@ -51,6 +52,7 @@ public class NatsSubscriber {
    * @param mongoTemplate Template for MongoDB operations.
    * @param objectMapper Mapper for JSON deserialization.
    */
+  @SuppressFBWarnings("EI_EXPOSE_REP2")
   public NatsSubscriber(final ReactiveMongoTemplate mongoTemplate,
                         final ObjectMapper objectMapper) {
     this.mongoTemplate = mongoTemplate;

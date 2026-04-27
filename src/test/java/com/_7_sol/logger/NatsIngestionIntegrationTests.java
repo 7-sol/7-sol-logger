@@ -34,7 +34,7 @@ class NatsIngestionIntegrationTests {
 
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.data.mongodb.uri", mongo::getReplicaSetUrl);
+    registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
     registry.add("app.nats.uri", () ->
         "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222));
     registry.add("NATS_SUBJECT", () -> "test.audit.logs");
@@ -53,7 +53,8 @@ class NatsIngestionIntegrationTests {
    */
   @Test
   void shouldIngestFromNatsToMongo() throws Exception {
-    String natsUrl = "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222);
+    String natsUrl = "nats://" + nats.getHost() + ":"
+        + nats.getMappedPort(4222);
     
     AuditLog logEntry = new AuditLog(
         "msg-id-1",

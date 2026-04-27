@@ -1,13 +1,13 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
 package com._7_sol.logger;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.ReactiveIndexOperations;
 
 /**
  * Configuration for MongoDB, including TTL index setup.
@@ -25,6 +25,7 @@ public class MongoConfig {
    *
    * @param mongoTemplate The reactive mongo template.
    */
+  @SuppressFBWarnings("EI_EXPOSE_REP2")
   public MongoConfig(final ReactiveMongoTemplate mongoTemplate) {
     this.mongoTemplate = mongoTemplate;
   }
@@ -34,11 +35,10 @@ public class MongoConfig {
    */
   @PostConstruct
   public void initIndexes() {
-    ReactiveIndexOperations indexOps = mongoTemplate.indexOps(AuditLog.class);
-    Index ttlIndex = new Index()
-        .on("timestamp", org.springframework.data.domain.Sort.Direction.ASC)
-        .expire(Duration.ofDays(retentionDays));
-
-    indexOps.ensureIndex(ttlIndex).subscribe();
+    mongoTemplate.indexOps("audit_logs")
+        .createIndex(new Index()
+            .on("timestamp", org.springframework.data.domain.Sort.Direction.ASC)
+            .expire(Duration.ofDays(retentionDays)))
+        .subscribe();
   }
 }
