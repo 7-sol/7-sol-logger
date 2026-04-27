@@ -36,7 +36,7 @@ public class NatsSubscriber {
   @Value("${app.nats.uri}")
   private String natsUri;
 
-  @Value("${app.nats.subject}")
+  @Value("${NATS_SUBJECT:audit.logs}")
   private String subject;
 
   private Connection natsConnection;

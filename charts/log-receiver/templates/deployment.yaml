@@ -32,15 +32,31 @@ spec:
                 configMapKeyRef:
                   name: {{ .Values.env.mongoUriFromConfig }}
                   key: {{ .Values.env.mongoUriKey }}
+            - name: MONGO_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.env.mongoUserFromConfig }}
+                  key: {{ .Values.env.mongoUserKey }}
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.env.mongoPasswordFromSecret }}
+                  key: {{ .Values.env.mongoPasswordKey }}
             - name: NATS_URI
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.env.natsUriFromConfig }}
                   key: {{ .Values.env.natsUriKey }}
             - name: NATS_SUBJECT
-              value: {{ .Values.config.natsSubject }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.env.natsSubjectFromConfig }}
+                  key: {{ .Values.env.natsSubjectKey }}
             - name: APP_LOGGING_RETENTION_DAYS
-              value: {{ .Values.config.retentionDays | quote }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.env.retentionDaysFromConfig }}
+                  key: {{ .Values.env.retentionDaysKey }}
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

@@ -22,12 +22,16 @@ resources:
     cpu: 200m
     memory: 256Mi
 
-config:
-  natsSubject: "audit.logs"
-  retentionDays: 90
-
 env:
   mongoUriFromConfig: "mongo-config"
   mongoUriKey: "uri"
+  mongoUserFromConfig: "mongo-config"
+  mongoUserKey: "username"
+  mongoPasswordFromSecret: "mongo-secret"
+  mongoPasswordKey: "password"
   natsUriFromConfig: "nats-config"
   natsUriKey: "uri"
+  natsSubjectFromConfig: "nats-config"
+  natsSubjectKey: "subject"
+  retentionDaysFromConfig: "app-config"
+  retentionDaysKey: "retention-days"

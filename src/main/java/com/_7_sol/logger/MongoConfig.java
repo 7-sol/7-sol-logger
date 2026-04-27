@@ -17,7 +17,7 @@ public class MongoConfig {
 
   private final ReactiveMongoTemplate mongoTemplate;
 
-  @Value("${app.logging.retention-days:90}")
+  @Value("${APP_LOGGING_RETENTION_DAYS:90}")
   private int retentionDays;
 
   /**
