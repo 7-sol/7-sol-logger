@@ -18,7 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 class LoggerApplicationTests {
 
   @Container
-  static MongoDBContainer mongo = new MongoDBContainer("mongo:7.0");
+  static MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
 
   @Container
   static GenericContainer<?> nats = new GenericContainer<>("nats:latest")
@@ -27,7 +27,7 @@ class LoggerApplicationTests {
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
-    registry.add("nats.url", NatsIngestionIntegrationTests::natsUrl);
+    registry.add("nats.url", LoggerApplicationTests::natsUrl);
   }
 
   /**
@@ -36,5 +36,10 @@ class LoggerApplicationTests {
   @Test
   void contextLoads() {
     // Basic check to ensure the Spring context starts without errors.
+  }
+
+
+  static String natsUrl(){
+    return "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222);
   }
 }

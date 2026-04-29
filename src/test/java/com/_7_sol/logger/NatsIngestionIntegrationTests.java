@@ -35,7 +35,7 @@ class NatsIngestionIntegrationTests {
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
-    registry.add("nats.uri", NatsIngestionIntegrationTests::natsUrl);
+    registry.add("nats.url", NatsIngestionIntegrationTests::natsUrl);
     registry.add("nats.subject", () -> "test.audit.logs");
   }
 
