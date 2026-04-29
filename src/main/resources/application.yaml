@@ -17,8 +17,10 @@ management:
 # We rely on SPRING_MONGODB_USERNAME and SPRING_MONGODB_PASSWORD
 # environment variables for authentication, which are mapped in the Helm chart.
 spring:
+  application:
+    name: 'auth-svr'
   mongodb:
-    uri: 'mongodb://ais_user:ais-user-password@localhost:27017/ais?authSource=ais&replicaSet=rs0'
+    uri: 'mongodb://${SPRING_MONGODB_USERNAME:ais_user}:${SPRING_MONGODB_PASSWORD:ais-user-password}@${MONGO_HOSTS:localhost:27017}/${MONGO_DATABASE:ais}?replicaSet=${REPLICA_SET:rs0}&authSource=${MONGO_DATABASE:ais}'
 
 # NATS Configuration
 nats:
