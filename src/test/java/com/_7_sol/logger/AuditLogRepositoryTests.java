@@ -21,7 +21,7 @@ import reactor.test.StepVerifier;
 class AuditLogRepositoryTests {
 
   @Container
-  static MongoDBContainer mongo = new MongoDBContainer("mongo:7.0");
+  static MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
 
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {

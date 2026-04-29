@@ -26,7 +26,7 @@ import reactor.test.StepVerifier;
 class NatsIngestionIntegrationTests {
 
   @Container
-  static MongoDBContainer mongo = new MongoDBContainer("mongo:7.0");
+  static MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
 
   @Container
   static GenericContainer<?> nats = new GenericContainer<>("nats:latest")
@@ -35,9 +35,8 @@ class NatsIngestionIntegrationTests {
   @DynamicPropertySource
   static void setProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
-    registry.add("app.nats.uri", () ->
-        "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222));
-    registry.add("NATS_SUBJECT", () -> "test.audit.logs");
+    registry.add("nats.uri", NatsIngestionIntegrationTests::natsUrl);
+    registry.add("nats.subject", () -> "test.audit.logs");
   }
 
   @Autowired
@@ -53,8 +52,8 @@ class NatsIngestionIntegrationTests {
    */
   @Test
   void shouldIngestFromNatsToMongo() throws Exception {
-    String natsUrl = "nats://" + nats.getHost() + ":"
-        + nats.getMappedPort(4222);
+//    String natsUrl = "nats://" + nats.getHost() + ":"
+//        + nats.getMappedPort(4222);
     
     AuditLog logEntry = new AuditLog(
         "msg-id-1",
@@ -69,7 +68,7 @@ class NatsIngestionIntegrationTests {
     );
     
     // Connect, publish and wait
-    try (Connection conn = Nats.connect(natsUrl)) {
+    try (Connection conn = Nats.connect(natsUrl())) {
       conn.publish("test.audit.logs", objectMapper.writeValueAsBytes(logEntry));
       conn.flush(Duration.ofSeconds(2));
     }
@@ -82,5 +81,9 @@ class NatsIngestionIntegrationTests {
         .expectSubscription()
         .expectNextMatches(log -> log.correlationId().equals("nats-corr-1"))
         .verifyComplete();
+  }
+
+  static String natsUrl(){
+    return "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222);
   }
 }

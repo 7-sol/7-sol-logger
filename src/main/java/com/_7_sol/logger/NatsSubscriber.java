@@ -12,6 +12,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,20 +28,20 @@ import reactor.core.publisher.Sinks;
  * Service that subscribes to NATS and persists audit logs in batches.
  */
 @Service
+@RequiredArgsConstructor
+@Log4j2
 public class NatsSubscriber {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(NatsSubscriber.class);
   private static final int BATCH_SIZE = 500;
   private static final int BATCH_TIMEOUT_SECONDS = 2;
 
   private final ReactiveMongoTemplate mongoTemplate;
   private final ObjectMapper objectMapper;
 
-  @Value("${app.nats.uri}")
-  private String natsUri;
+  @Value("${nats.url}")
+  private String natsUrl;
 
-  @Value("${NATS_SUBJECT:audit.logs}")
+  @Value("${nats.subject:audit.logs}")
   private String subject;
 
   private Connection natsConnection;
@@ -46,18 +50,6 @@ public class NatsSubscriber {
       .multicast()
       .onBackpressureBuffer();
 
-  /**
-   * Constructs NatsSubscriber.
-   *
-   * @param mongoTemplate Template for MongoDB operations.
-   * @param objectMapper Mapper for JSON deserialization.
-   */
-  @SuppressFBWarnings("EI_EXPOSE_REP2")
-  public NatsSubscriber(final ReactiveMongoTemplate mongoTemplate,
-                        final ObjectMapper objectMapper) {
-    this.mongoTemplate = mongoTemplate;
-    this.objectMapper = objectMapper;
-  }
 
   /**
    * Initializes the NATS connection and starts the ingestion pipeline.
@@ -67,7 +59,7 @@ public class NatsSubscriber {
    */
   @PostConstruct
   public void start() throws IOException, InterruptedException {
-    Options options = new Options.Builder().server(natsUri).build();
+    Options options = new Options.Builder().server(natsUrl).build();
     natsConnection = Nats.connect(options);
 
     dispatcher = natsConnection.createDispatcher(msg -> {

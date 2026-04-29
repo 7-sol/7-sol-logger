@@ -5,8 +5,9 @@
     "https://checkstyle.org/dtds/configuration_1_3.dtd">
 <module name="Checker">
   <module name="LineLength">
-    <property name="max" value="80"/>
+    <property name="max" value="120"/>
     <property name="fileExtensions" value="java,xml,properties,md,yaml"/>
+    <property name="ignorePattern" value="^.*http://.*$|^.*https://.*$"/>
   </module>
   <module name="TreeWalker">
     <module name="MemberName"/>

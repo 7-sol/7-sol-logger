@@ -42,11 +42,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.env.mongoPasswordFromSecret }}
                   key: {{ .Values.env.mongoPasswordKey }}
-            - name: NATS_URI
+            - name: NATS_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.env.natsUriFromConfig }}
-                  key: {{ .Values.env.natsUriKey }}
+                  name: {{ .Values.env.natsUrlFromConfig }}
+                  key: {{ .Values.env.natsUrlKey }}
             - name: NATS_SUBJECT
               valueFrom:
                 configMapKeyRef:

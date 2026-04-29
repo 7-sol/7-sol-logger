@@ -4,6 +4,7 @@ package com._7_sol.logger;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -13,6 +14,7 @@ import org.springframework.data.mongodb.core.index.Index;
  * Configuration for MongoDB, including TTL index setup.
  */
 @Configuration
+//@RequiredArgsConstructor
 public class MongoConfig {
 
   private final ReactiveMongoTemplate mongoTemplate;

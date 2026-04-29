@@ -1,0 +1,35 @@
+# Copyright (c) 2026 7-Sol. All rights reserved.
+
+# Server Configuration
+server:
+  port: 8088
+  shutdown: graceful
+
+# Management Configuration
+management:
+  server.port: 8081
+  endpoints:
+    web.exposure.include: health,prometheus,loggers
+  endpoint:
+    health.show-details: always
+
+# MongoDB Configuration
+# We rely on SPRING_MONGODB_USERNAME and SPRING_MONGODB_PASSWORD
+# environment variables for authentication, which are mapped in the Helm chart.
+spring:
+  mongodb:
+    uri: >
+      ${MONGO_URI:mongodb://ais_user:ais-user-password@localhost:27017/ais?
+      authSource=ais&replicaSet=rs0}
+
+# NATS Configuration
+nats:
+  url: ${NATS_URL:nats://localhost:4222}
+  subject: ${NATS_SUBJECT:audit.logs}
+
+# Logging Retention
+# (Mappings now directly use environment variables in Java code)
+app:
+  logging:
+    retention:
+      days: ${APP_LOGGING_RETENTION_DAYS:90}
