@@ -18,9 +18,7 @@ management:
 # environment variables for authentication, which are mapped in the Helm chart.
 spring:
   mongodb:
-    uri: >
-      ${MONGO_URI:mongodb://ais_user:ais-user-password@localhost:27017/ais?
-      authSource=ais&replicaSet=rs0}
+    uri: 'mongodb://ais_user:ais-user-password@localhost:27017/ais?authSource=ais&replicaSet=rs0'
 
 # NATS Configuration
 nats:
