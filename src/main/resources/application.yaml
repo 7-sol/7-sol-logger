@@ -17,8 +17,10 @@ management:
 # We rely on SPRING_MONGODB_USERNAME and SPRING_MONGODB_PASSWORD
 # environment variables for authentication, which are mapped in the Helm chart.
 spring:
+  main:
+    web-application-type: reactive
   application:
-    name: 'auth-svr'
+    name: 'logger'
   mongodb:
     uri: 'mongodb://${SPRING_MONGODB_USERNAME:ais_user}:${SPRING_MONGODB_PASSWORD:ais-user-password}@${MONGO_HOSTS:localhost:27017}/${MONGO_DATABASE:ais}?replicaSet=${REPLICA_SET:rs0}&authSource=${MONGO_DATABASE:ais}'
 

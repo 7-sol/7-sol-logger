@@ -73,8 +73,17 @@ public class NatsSubscriber {
 
     sink.asFlux()
         .bufferTimeout(BATCH_SIZE, Duration.ofSeconds(BATCH_TIMEOUT_SECONDS))
-        .flatMap(this::persistBatch)
-        .subscribe();
+        .flatMap(batch -> persistBatch(batch)
+            .onErrorResume(e -> {
+              log.error("Recoverable error during batch persistence", e);
+              return Flux.empty();
+            }))
+        .retryWhen(reactor.util.retry.Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(1))
+            .maxBackoff(Duration.ofMinutes(1)))
+        .subscribe(
+            success -> {},
+            error -> log.error("Fatal error in NATS subscription pipeline", error)
+        );
   }
 
   /**
@@ -88,7 +97,10 @@ public class NatsSubscriber {
       return Flux.empty();
     }
     return mongoTemplate.insertAll(batch)
-        .doOnError(e -> log.error("Failed to persist batch", e));
+        .doOnComplete(() -> log.info("Successfully persisted batch of {} logs",
+            batch.size()))
+        .doOnError(e -> log.error("Failed to persist batch of {} logs",
+            batch.size(), e));
   }
 
   /**
