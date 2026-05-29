@@ -6,7 +6,7 @@ import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 
 /**
@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.core.index.Index;
 @RequiredArgsConstructor
 public class MongoConfig {
 
-  private final ReactiveMongoTemplate mongoTemplate;
+  private final MongoTemplate mongoTemplate;
 
   @Value("${app.logging.retention.days:90}")
   private int retentionDays;
@@ -27,9 +27,8 @@ public class MongoConfig {
   @PostConstruct
   public void initIndexes() {
     mongoTemplate.indexOps("audit_logs")
-        .createIndex(new Index()
+        .ensureIndex(new Index()
             .on("timestamp", org.springframework.data.domain.Sort.Direction.ASC)
-            .expire(Duration.ofDays(retentionDays)))
-        .subscribe();
+            .expire(Duration.ofDays(retentionDays)));
   }
 }

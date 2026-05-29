@@ -8,18 +8,18 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
-import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
 
 /**
  * Service that subscribes to NATS and persists audit logs in batches.
@@ -30,9 +30,10 @@ import reactor.core.publisher.Sinks;
 public class NatsSubscriber {
 
   private static final int BATCH_SIZE = 500;
-  private static final int BATCH_TIMEOUT_SECONDS = 2;
+  private static final int BATCH_TIMEOUT_MS = 2000;
+  private static final int QUEUE_CAPACITY = 10000;
 
-  private final ReactiveMongoTemplate mongoTemplate;
+  private final MongoTemplate mongoTemplate;
   private final ObjectMapper objectMapper;
 
   @Value("${nats.url}")
@@ -43,10 +44,9 @@ public class NatsSubscriber {
 
   private Connection natsConnection;
   private Dispatcher dispatcher;
-  private final Sinks.Many<AuditLog> sink = Sinks.many()
-      .multicast()
-      .onBackpressureBuffer();
-
+  private final BlockingQueue<AuditLog> logQueue =
+      new LinkedBlockingQueue<>(QUEUE_CAPACITY);
+  private volatile boolean running = true;
 
   /**
    * Initializes the NATS connection and starts the ingestion pipeline.
@@ -63,7 +63,10 @@ public class NatsSubscriber {
       try {
         AuditLog logEntry = objectMapper.readValue(
             msg.getData(), AuditLog.class);
-        sink.tryEmitNext(logEntry);
+        if (!logQueue.offer(logEntry)) {
+          log.warn("Log queue is full, dropping log entry: {}",
+              logEntry.operationId());
+        }
       } catch (Exception e) {
         log.error("Failed to deserialize audit log", e);
       }
@@ -71,36 +74,60 @@ public class NatsSubscriber {
 
     dispatcher.subscribe(subject);
 
-    sink.asFlux()
-        .bufferTimeout(BATCH_SIZE, Duration.ofSeconds(BATCH_TIMEOUT_SECONDS))
-        .flatMap(batch -> persistBatch(batch)
-            .onErrorResume(e -> {
-              log.error("Recoverable error during batch persistence", e);
-              return Flux.empty();
-            }))
-        .retryWhen(reactor.util.retry.Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(1))
-            .maxBackoff(Duration.ofMinutes(1)))
-        .subscribe(
-            success -> {},
-            error -> log.error("Fatal error in NATS subscription pipeline", error)
-        );
+    // Start a virtual thread for batch processing
+    Thread.ofVirtual().name("nats-batch-processor").start(this::processLogs);
+  }
+
+  /**
+   * Continuous loop to process logs from the queue in batches.
+   */
+  private void processLogs() {
+    List<AuditLog> batch = new ArrayList<>(BATCH_SIZE);
+    while (running || !logQueue.isEmpty()) {
+      try {
+        long startTime = System.currentTimeMillis();
+        while (batch.size() < BATCH_SIZE &&
+            (System.currentTimeMillis() - startTime) < BATCH_TIMEOUT_MS) {
+          
+          long remainingTime = BATCH_TIMEOUT_MS - 
+              (System.currentTimeMillis() - startTime);
+          AuditLog entry = logQueue.poll(
+              Math.max(0, remainingTime), TimeUnit.MILLISECONDS);
+          
+          if (entry != null) {
+            batch.add(entry);
+          } else {
+            break; // Timeout reached or queue empty
+          }
+        }
+
+        if (!batch.isEmpty()) {
+          persistBatch(batch);
+          batch.clear();
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        log.error("Batch processor interrupted", e);
+        break;
+      } catch (Exception e) {
+        log.error("Error in batch processor loop", e);
+      }
+    }
   }
 
   /**
    * Persists a batch of audit logs to MongoDB.
    *
    * @param batch The list of audit logs to persist.
-   * @return A Flux of the persisted audit logs.
    */
-  private Flux<AuditLog> persistBatch(List<AuditLog> batch) {
-    if (batch.isEmpty()) {
-      return Flux.empty();
+  private void persistBatch(List<AuditLog> batch) {
+    try {
+      mongoTemplate.insertAll(batch);
+      log.info("Successfully persisted batch of {} logs", batch.size());
+    } catch (Exception e) {
+      log.error("Failed to persist batch of {} logs", batch.size(), e);
+      // In a real scenario, we might want to retry or move to a DLQ
     }
-    return mongoTemplate.insertAll(batch)
-        .doOnComplete(() -> log.info("Successfully persisted batch of {} logs",
-            batch.size()))
-        .doOnError(e -> log.error("Failed to persist batch of {} logs",
-            batch.size(), e));
   }
 
   /**
@@ -110,6 +137,7 @@ public class NatsSubscriber {
    */
   @PreDestroy
   public void stop() throws InterruptedException {
+    running = false;
     if (dispatcher != null && natsConnection != null) {
       natsConnection.closeDispatcher(dispatcher);
       natsConnection.close();

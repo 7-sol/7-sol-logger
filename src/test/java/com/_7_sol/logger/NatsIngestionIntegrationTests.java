@@ -1,12 +1,15 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
 package com._7_sol.logger;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Nats;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +19,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.test.StepVerifier;
 
 /**
  * End-to-end integration tests for NATS log ingestion.
@@ -52,9 +54,6 @@ class NatsIngestionIntegrationTests {
    */
   @Test
   void shouldIngestFromNatsToMongo() throws Exception {
-//    String natsUrl = "nats://" + nats.getHost() + ":"
-//        + nats.getMappedPort(4222);
-    
     AuditLog logEntry = new AuditLog(
         "msg-id-1",
         "op-id-1",
@@ -73,14 +72,19 @@ class NatsIngestionIntegrationTests {
       conn.flush(Duration.ofSeconds(2));
     }
 
-    // Give the application some time to process the message and buffer
-    Thread.sleep(5000);
-
-    // Verify
-    StepVerifier.create(repository.findById("msg-id-1"))
-        .expectSubscription()
-        .expectNextMatches(log -> log.correlationId().equals("nats-corr-1"))
-        .verifyComplete();
+    // Poll repository until message is persisted or timeout reached
+    boolean persisted = false;
+    for (int i = 0; i < 20; i++) {
+      Optional<AuditLog> found = repository.findById("msg-id-1");
+      if (found.isPresent()) {
+        assertThat(found.get().correlationId()).isEqualTo("nats-corr-1");
+        persisted = true;
+        break;
+      }
+      Thread.sleep(500);
+    }
+    
+    assertThat(persisted).as("Log should be persisted in MongoDB").isTrue();
   }
 
   static String natsUrl(){

@@ -17,8 +17,11 @@ management:
 # We rely on SPRING_MONGODB_USERNAME and SPRING_MONGODB_PASSWORD
 # environment variables for authentication, which are mapped in the Helm chart.
 spring:
+  threads:
+    virtual:
+      enabled: true
   main:
-    web-application-type: reactive
+    web-application-type: servlet
   application:
     name: 'logger'
   mongodb:

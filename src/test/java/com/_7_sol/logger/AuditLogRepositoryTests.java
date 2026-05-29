@@ -1,22 +1,24 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
 package com._7_sol.logger;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.mongodb.test.autoconfigure.DataMongoTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import reactor.test.StepVerifier;
 
 /**
  * Integration tests for {@link AuditLogRepository} using Testcontainers.
  */
-@DataMongoTest
+@SpringBootTest
 @Testcontainers
 class AuditLogRepositoryTests {
 
@@ -48,12 +50,11 @@ class AuditLogRepositoryTests {
         List.of(new LogEntry(Instant.now(), "INFO", "Order created"))
     );
 
-    StepVerifier.create(repository.save(logEntry))
-        .expectNextMatches(saved -> saved.id() != null)
-        .verifyComplete();
+    AuditLog saved = repository.save(logEntry);
+    assertThat(saved.id()).isNotNull();
 
-    StepVerifier.create(repository.findAll())
-        .expectNextMatches(found -> found.correlationId().equals("corr-1"))
-        .verifyComplete();
+    List<AuditLog> all = repository.findAll();
+    assertThat(all).hasSize(1);
+    assertThat(all.get(0).correlationId()).isEqualTo("corr-1");
   }
 }
