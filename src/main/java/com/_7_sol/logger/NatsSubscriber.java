@@ -43,6 +43,25 @@ public class NatsSubscriber {
   private String subject;
 
   private Connection natsConnection;
+
+  /**
+   * Returns the active NATS connection.
+   *
+   * @return The NATS connection.
+   */
+  public Connection getConnection() {
+    return natsConnection;
+  }
+
+  /**
+   * Returns the NATS subject.
+   *
+   * @return The NATS subject.
+   */
+  public String getSubject() {
+    return subject;
+  }
+
   private Dispatcher dispatcher;
   private final BlockingQueue<AuditLog> logQueue =
       new LinkedBlockingQueue<>(QUEUE_CAPACITY);
