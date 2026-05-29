@@ -2,6 +2,7 @@
 package com._7_sol.logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.nats.client.Connection;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

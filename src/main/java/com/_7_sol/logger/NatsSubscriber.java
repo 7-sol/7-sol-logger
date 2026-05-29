@@ -2,6 +2,7 @@
 package com._7_sol.logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import io.nats.client.Nats;
@@ -49,6 +50,7 @@ public class NatsSubscriber {
    *
    * @return The NATS connection.
    */
+  @SuppressFBWarnings("EI_EXPOSE_REP")
   public Connection getConnection() {
     return natsConnection;
   }
