@@ -1,6 +1,7 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
 package com._7_sol.logger;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,4 +10,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AuditLogRepository
-    extends MongoRepository<AuditLog, String> {}
+    extends MongoRepository<AuditLog, ObjectId> {}

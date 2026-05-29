@@ -30,8 +30,8 @@ public class StartupVerificationService {
   public void verifyStartup() {
     try {
       AuditLog startupLog = new AuditLog(
-          UUID.randomUUID().toString(),
-          "STARTUP_VERIFICATION",
+          null,
+          "LOGGER_STARTUP_VERIFICATION",
           "SYSTEM_BOOT",
           "SUCCESS",
           UUID.randomUUID().toString(),

@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -54,8 +55,9 @@ class NatsIngestionIntegrationTests {
    */
   @Test
   void shouldIngestFromNatsToMongo() throws Exception {
+    ObjectId testId = new ObjectId();
     AuditLog logEntry = new AuditLog(
-        "msg-id-1",
+        testId,
         "op-id-1",
         "UPDATE_PROFILE",
         "SUCCESS",
@@ -75,7 +77,7 @@ class NatsIngestionIntegrationTests {
     // Poll repository until message is persisted or timeout reached
     boolean persisted = false;
     for (int i = 0; i < 20; i++) {
-      Optional<AuditLog> found = repository.findById("msg-id-1");
+      Optional<AuditLog> found = repository.findById(testId);
       if (found.isPresent()) {
         assertThat(found.get().correlationId()).isEqualTo("nats-corr-1");
         persisted = true;
