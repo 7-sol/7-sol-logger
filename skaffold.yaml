@@ -4,19 +4,84 @@ kind: Config
 metadata:
   name: log-receiver
 build:
+  local:
+    push: false
+    useBuildkit: true
   artifacts:
     - image: log-receiver
-      ko:
-        main: .
+      hooks:
+        before:
+          - command: ["sh", "-c", "cp ~/.config/gcloud/application_default_credentials.json ./.gcp-adc.json 2>/dev/null || echo '{}' > ./.gcp-adc.json"]
+            os: [linux, darwin]
+      docker:
+        dockerfile: src/scripts/docker/Dockerfile.native
 manifests:
   helm:
     releases:
       - name: log-receiver
         chartPath: charts/log-receiver
-        valuesFiles:
-          - charts/log-receiver/values.yaml
         setValueTemplates:
           image.repository: "{{.IMAGE_REPO_log_receiver}}"
-          image.tag: "{{.IMAGE_TAG_log_receiver}}"
+          image.tag: "{{.IMAGE_TAG_log_receiver}}@{{.IMAGE_DIGEST_log_receiver}}"
+        valuesFiles:
+          - charts/log-receiver/values.yaml
+
 deploy:
-  kubectl: {}
+  helm: {}
+
+profiles:
+  # dev: Local Minikube development (Fast JIT Mocking)
+  - name: dev
+    build:
+      artifacts:
+        - image: log-receiver
+          docker:
+            dockerfile: src/scripts/docker/Dockerfile
+    manifests:
+      helm:
+        releases:
+          - name: log-receiver
+            chartPath: charts/log-receiver
+            namespace: dev
+            setValues:
+              isLocalDev: true
+            valuesFiles:
+              - charts/log-receiver/values.yaml
+              - charts/log-receiver/values-dev.yaml
+
+  # beta: GKE Canary/Prod-DB (Native Image)
+  - name: beta
+    build:
+      local:
+        push: true
+    manifests:
+      helm:
+        releases:
+          - name: log-receiver
+            chartPath: charts/log-receiver
+            namespace: beta
+            valuesFiles:
+              - charts/log-receiver/values.yaml
+              - charts/log-receiver/values-beta.yaml
+
+  # prod: GKE Final/Prod-DB (Native Image via Cloud Build)
+  - name: prod
+    build:
+      googleCloudBuild:
+        projectId: servers-7-sol
+        machineType: E2_HIGHMEM_8
+    manifests:
+      helm:
+        releases:
+          - name: log-receiver
+            chartPath: charts/log-receiver
+            namespace: prod
+            valuesFiles:
+              - charts/log-receiver/values.yaml
+              - charts/log-receiver/values-prod.yaml
+
+  # gcp: High-Memory Cloud Build instructions
+  - name: gcp
+    build:
+      local:
+        useBuildkit: true

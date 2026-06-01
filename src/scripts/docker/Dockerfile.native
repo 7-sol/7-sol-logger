@@ -1,0 +1,31 @@
+# Stage 1: Build the native image
+FROM ghcr.io/graalvm/native-image-community:25 AS build
+
+# Install Maven
+RUN microdnf install -y maven
+
+WORKDIR /build
+# Copy everything including the .gcp-adc.json (copied by Skaffold hook)
+COPY . .
+
+# Set credentials for Artifact Registry
+ENV GOOGLE_APPLICATION_CREDENTIALS=/build/.gcp-adc.json
+
+# Build the native image
+RUN mvn -Pnative native:compile -DskipTests \
+    -Dnative-image.build-args="-O3 --initialize-at-build-time=org.apache.commons.logging,org.apache.logging.log4j,org.apache.logging.slf4j,org.slf4j,org.hibernate.validator,org.jboss.logging,org.springframework.boot.ansi,org.springframework.boot.logging.log4j2,jakarta.validation,ch.qos.logback.classic,ch.qos.logback.core --no-fallback"
+
+# Stage 2: Final runtime image
+FROM debian:bookworm-slim
+
+# Install necessary runtime libraries
+RUN apt-get update && apt-get install -y zlib1g && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy the native binary from the build stage
+COPY --from=build /build/target/log-receiver /app/log-receiver
+
+# Set the binary as the entrypoint
+EXPOSE 8080
+ENTRYPOINT ["/app/log-receiver"]

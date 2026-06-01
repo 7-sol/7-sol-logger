@@ -6,18 +6,18 @@ metadata:
 description: Delivery pipeline for Log Ingestion Server
 serialPipeline:
   stages:
-    - targetId: dev
-      profiles: [dev]
+    - targetId: beta
+      profiles: [beta]
     - targetId: prod
       profiles: [prod]
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
-  name: dev
-description: Development environment
+  name: beta
+description: Beta environment
 gke:
-  cluster: projects/my-project/locations/us-central1/clusters/dev-cluster
+  cluster: projects/servers-7-sol/locations/northamerica-northeast1/clusters/autopilot-cluster
 ---
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
@@ -25,4 +25,4 @@ metadata:
   name: prod
 description: Production environment
 gke:
-  cluster: projects/my-project/locations/us-central1/clusters/prod-cluster
+  cluster: projects/servers-7-sol/locations/northamerica-northeast1/clusters/autopilot-cluster
