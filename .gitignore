@@ -33,3 +33,5 @@ build/
 .vscode/
 /artifacts.json
 /.gcp-adc.json
+/jackson-databind-3.1.2.jar
+/build_output.txt
