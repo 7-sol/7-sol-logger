@@ -1,11 +1,13 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
 package com._7_sol.logger;
 
+import com._7_sol.logger.config.LoggerHint;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.context.annotation.Primary;
 
 /**
@@ -15,6 +17,9 @@ import org.springframework.context.annotation.Primary;
  * and persists them to MongoDB in batches.</p>
  */
 @SpringBootApplication
+@ImportRuntimeHints({
+    LoggerHint.class
+})
 public class LoggerApplication {
 
   /**

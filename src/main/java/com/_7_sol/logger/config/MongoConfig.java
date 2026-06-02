@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
-package com._7_sol.logger;
+package com._7_sol.logger.config;
 
 import jakarta.annotation.PostConstruct;
 import java.time.Duration;
@@ -26,8 +26,7 @@ public class MongoConfig {
    */
   @PostConstruct
   public void initIndexes() {
-    mongoTemplate.indexOps("audit_logs")
-        .ensureIndex(new Index()
+    mongoTemplate.indexOps("audit_logs").createIndex(new Index()
             .on("timestamp", org.springframework.data.domain.Sort.Direction.ASC)
             .expire(Duration.ofDays(retentionDays)));
   }

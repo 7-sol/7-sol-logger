@@ -1,13 +1,10 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
-package com._7_sol.logger;
+package com._7_sol.logger.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
@@ -62,16 +59,5 @@ public record AuditLog(
     logs = (logs == null) ? List.of() : List.copyOf(logs);
     timestamp = (timestamp == null) ? Instant.now() : timestamp;
     id = (id == null) ? new ObjectId() : id;
-  }
-
-  /**
-   * Custom deserializer for ObjectId to handle hex strings.
-   */
-  public static class ObjectIdDeserializer extends JsonDeserializer<ObjectId> {
-    @Override
-    public ObjectId deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-      String hex = p.getValueAsString();
-      return (hex == null || hex.isEmpty()) ? null : new ObjectId(hex);
-    }
   }
 }

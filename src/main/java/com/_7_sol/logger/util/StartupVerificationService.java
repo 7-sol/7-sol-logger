@@ -1,8 +1,8 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
-package com._7_sol.logger;
+package com._7_sol.logger.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.nats.client.Connection;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;

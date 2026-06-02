@@ -5,7 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+
+import com._7_sol.logger.util.AuditLog;
+import com._7_sol.logger.util.AuditLogRepository;
+import com._7_sol.logger.util.LogEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

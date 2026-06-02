@@ -73,11 +73,19 @@
       <artifactId>spring-boot-starter-data-mongodb-test</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+
+<!--    &lt;!&ndash; To suppport GraalVM AOT compiler&ndash;&gt;-->
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.boot</groupId>-->
+<!--      <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>-->
+<!--    </dependency>-->
+
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>mongodb</artifactId>

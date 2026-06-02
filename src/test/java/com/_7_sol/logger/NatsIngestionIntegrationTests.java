@@ -3,6 +3,9 @@ package com._7_sol.logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com._7_sol.logger.util.AuditLog;
+import com._7_sol.logger.util.AuditLogRepository;
+import com._7_sol.logger.util.LogEntry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
 import io.nats.client.Nats;

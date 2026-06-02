@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
-package com._7_sol.logger;
+package com._7_sol.logger.util;
 
 import java.time.Instant;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;

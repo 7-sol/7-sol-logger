@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
-package com._7_sol.logger;
+package com._7_sol.logger.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
