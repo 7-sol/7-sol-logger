@@ -1,6 +1,8 @@
 package com._7_sol.logger.config;
 
 import com._7_sol.logger.util.AuditLog;
+import com._7_sol.logger.util.LogEntry;
+import com._7_sol.logger.util.ObjectIdDeserializer;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -23,7 +25,9 @@ public class LoggerHint  implements RuntimeHintsRegistrar {
 
         // 2. Just put the Class objects directly into the list
         List<Class<?>> classes = Arrays.asList(
-                AuditLog.class
+                AuditLog.class,
+                LogEntry.class,
+                ObjectIdDeserializer.class
         );
 
         // 3. Loop through and register them cleanly

@@ -5,6 +5,7 @@ package com._7_sol.logger.util;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.time.Instant;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document(collection = "audit_logs")
 @RegisterReflectionForBinding
+@SuppressFBWarnings("EI_EXPOSE_REP")
 public record AuditLog(
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
