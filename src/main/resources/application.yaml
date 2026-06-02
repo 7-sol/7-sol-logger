@@ -25,12 +25,13 @@ spring:
   application:
     name: 'logger'
   mongodb:
-    uri: 'mongodb://${SPRING_MONGODB_USERNAME:ais_user}:${SPRING_MONGODB_PASSWORD:ais-user-password}@${MONGO_HOSTS:localhost:27017}/${MONGO_DATABASE:ais}?replicaSet=${REPLICA_SET:rs0}&authSource=${MONGO_DATABASE:ais}'
+    uri: 'mongodb://${MONGO_AIS_USER}:${MONGODB_AIS_USER_PASSWORD}@${MONGO_HOSTS}/${MONGO_DATABASE:ais}?replicaSet=${REPLICA_SET:rs0}&authSource=${MONGO_DATABASE:ais}'
 
 # NATS Configuration
 nats:
   url: ${NATS_URL:nats://localhost:4222}
-  subject: ${NATS_SUBJECT:audit.logs}
+  log:
+    subject: ${NATS_LOG_SUBJECT:audit.logs}
 
 # Logging Retention
 # (Mappings now directly use environment variables in Java code)

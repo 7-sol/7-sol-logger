@@ -10,7 +10,6 @@ import java.time.Instant;
 import java.util.List;
 
 import org.bson.types.ObjectId;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,7 +27,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @param logs List of log entries captured during the operation.
  */
 @Document(collection = "audit_logs")
-@RegisterReflectionForBinding
 @SuppressFBWarnings("EI_EXPOSE_REP")
 public record AuditLog(
     @Id

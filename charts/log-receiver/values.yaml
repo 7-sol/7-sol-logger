@@ -5,7 +5,7 @@ isLocalDev: false
 replicaCount: 1
 
 image:
-  repository: gcr.io/my-project/log-receiver
+  repository: log-receiver
   pullPolicy: IfNotPresent
   tag: "latest"
 
@@ -23,15 +23,34 @@ resources:
     memory: 256Mi
 
 env:
-  mongoUriFromConfig: "mongo-config"
-  mongoUriKey: "uri"
-  mongoUserFromConfig: "mongo-config"
-  mongoUserKey: "username"
-  mongoPasswordFromSecret: "mongo-secret"
-  mongoPasswordKey: "password"
-  natsUrlFromConfig: "nats-config"
-  natsUrlKey: "url"
-  natsSubjectFromConfig: "nats-config"
-  natsSubjectKey: "subject"
-  retentionDaysFromConfig: "app-config"
-  retentionDaysKey: "retention-days"
+#  mongoUriFromConfig: "mongo-config"
+#  mongoUriKey: "uri"
+#  mongoUserFromConfig: "mongo-config"
+#  mongoUserKey: "username"
+#  mongoPasswordFromSecret: "mongo-secret"
+#  mongoPasswordKey: "password"
+#  natsUrlFromConfig: "nats-config"
+#  natsSubjectFromConfig: "nats-config"
+#  natsSubjectKey: "subject"
+#  retentionDaysFromConfig: "app-config"
+#  retentionDaysKey: "retention-days"
+
+app:
+  configs:
+    mongodbSecret: mongodb-secret
+    apps: apps.7-sol
+    mongo: mongo.7-sol
+    nats: nats.7-sol
+  confKeys:
+    logRetentionDays: app_log_retention_days
+    mongoDb: mongo_database
+    mongoRs: replica_set
+    mongoHosts: mongo_hosts
+    mongoUser: mongo_ais_user
+    mongoAutoIndex: mongo_auto_index_create
+    natsUrl: nats_url
+    natsLogSubject: nats_log_subject
+  secrets:
+    mongodbSecret: mongodb-secret
+  secretKeys:
+    mongoPassword: mongodb-ais-user-password

@@ -27,36 +27,58 @@ spec:
               containerPort: 8081
               protocol: TCP
           env:
-            - name: MONGO_URI
+            # Config for Mongo settings
+            - name: MONGO_DATABASE
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.env.mongoUriFromConfig }}
-                  key: {{ .Values.env.mongoUriKey }}
-            - name: SPRING_MONGODB_USERNAME
+                  name: {{ .Values.app.configs.mongo }}
+                  key:  {{ .Values.app.confKeys.mongoDb }}
+            - name: REPLICA_SET
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.env.mongoUserFromConfig }}
-                  key: {{ .Values.env.mongoUserKey }}
-            - name: SPRING_MONGODB_PASSWORD
+                  name: {{ .Values.app.configs.mongo }}
+                  key:  {{ .Values.app.confKeys.mongoRs }}
+            - name: MONGO_HOSTS
               valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.env.mongoPasswordFromSecret }}
-                  key: {{ .Values.env.mongoPasswordKey }}
+                configMapKeyRef:
+                  name: {{ .Values.app.configs.mongo }}
+                  key:  {{ .Values.app.confKeys.mongoHosts }}
+            - name: MONGO_AIS_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.app.configs.mongo }}
+                  key:  {{ .Values.app.confKeys.mongoUser }}
+            - name: MONGO_AUTO_INDEX_CREATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.app.configs.mongo }}
+                  key:  {{ .Values.app.confKeys.mongoAutoIndex }}
+                  optional: true
             - name: NATS_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.env.natsUrlFromConfig }}
-                  key: {{ .Values.env.natsUrlKey }}
-            - name: NATS_SUBJECT
+                  name: {{ .Values.app.configs.nats  }}
+                  key:  {{ .Values.app.confKeys.natsUrl }}
+            - name: NATS_LOG_SUBJECT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.env.natsSubjectFromConfig }}
-                  key: {{ .Values.env.natsSubjectKey }}
+                  name: {{ .Values.app.configs.nats }}
+                  key:  {{ .Values.app.confKeys.natsLogSubject }}
+                  optional: true
             - name: APP_LOGGING_RETENTION_DAYS
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.env.retentionDaysFromConfig }}
-                  key: {{ .Values.env.retentionDaysKey }}
+                  name: {{ .Values.app.configs.mongo }}
+                  key:  {{ .Values.app.confKeys.logRetentionDays }}
+                  optional: true
+
+            # Secrets pulled from Kubernetes Secrets
+            - name: MONGODB_AIS_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.app.secrets.mongodbSecret }}
+                  key:  {{ .Values.app.secretKeys.mongoPassword }}
+
           startupProbe:
             httpGet:
               path: /actuator/health/liveness

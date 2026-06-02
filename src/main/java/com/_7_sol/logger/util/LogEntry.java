@@ -2,7 +2,6 @@
 package com._7_sol.logger.util;
 
 import java.time.Instant;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 
 /**
  * Represents an individual log statement captured within an operation.
@@ -11,7 +10,6 @@ import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
  * @param level Severity level (e.g., INFO, ERROR).
  * @param message The log message content.
  */
-@RegisterReflectionForBinding
 public record LogEntry(
     Instant timestamp,
     String level,

@@ -12,8 +12,7 @@ COPY . .
 ENV GOOGLE_APPLICATION_CREDENTIALS=/build/.gcp-adc.json
 
 # Build the native image
-RUN mvn -Pnative native:compile -DskipTests \
-    -Dnative-image.build-args="-O3 --initialize-at-build-time=org.apache.commons.logging,org.apache.logging.log4j,org.apache.logging.slf4j,org.slf4j,org.hibernate.validator,org.jboss.logging,org.springframework.boot.ansi,org.springframework.boot.logging.log4j2,jakarta.validation,ch.qos.logback.classic,ch.qos.logback.core --no-fallback"
+RUN ./mvnw -Pnative native:compile -DskipTests
 
 # Stage 2: Final runtime image
 FROM debian:bookworm-slim

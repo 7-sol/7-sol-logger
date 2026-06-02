@@ -80,11 +80,10 @@
       <scope>test</scope>
     </dependency>
 
-<!--    &lt;!&ndash; To suppport GraalVM AOT compiler&ndash;&gt;-->
-<!--    <dependency>-->
-<!--      <groupId>org.springframework.boot</groupId>-->
-<!--      <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -110,10 +109,6 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.graalvm.buildtools</groupId>
-        <artifactId>native-maven-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -199,6 +194,15 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.graalvm.buildtools</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <configuration>
+          <buildArgs>
+            <buildArg>--initialize-at-run-time=io.micrometer.core.instrument.binder.logging.LogbackMetrics</buildArg>
+          </buildArgs>
+        </configuration>
+      </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -218,4 +222,37 @@
 
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>native</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+            <extensions>true</extensions>
+            <executions>
+              <execution>
+                <id>build-native</id>
+                <goals>
+                  <goal>compile</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <mainClass>com._7_sol.logger.LoggerApplication</mainClass>
+              <imageName>log-receiver</imageName>
+              <buildArgs>
+                <buildArg>-O3</buildArg>
+                <buildArg>--no-fallback</buildArg>
+                <buildArg>--initialize-at-build-time=org.hibernate.validator,org.jboss.logging,org.springframework.boot.ansi,jakarta.validation</buildArg>
+              </buildArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
