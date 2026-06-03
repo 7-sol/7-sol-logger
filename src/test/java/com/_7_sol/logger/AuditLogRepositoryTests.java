@@ -11,27 +11,11 @@ import com._7_sol.logger.util.AuditLogRepository;
 import com._7_sol.logger.util.LogEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Integration tests for {@link AuditLogRepository} using Testcontainers.
  */
-@SpringBootTest
-@Testcontainers
-class AuditLogRepositoryTests {
-
-  @Container
-  static MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
-
-  @DynamicPropertySource
-  static void setProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
-  }
+class AuditLogRepositoryTests extends BaseIntegrationTest {
 
   @Autowired
   private AuditLogRepository repository;

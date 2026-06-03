@@ -16,32 +16,16 @@ import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * End-to-end integration tests for NATS log ingestion.
  */
-@SpringBootTest
-@Testcontainers
-class NatsIngestionIntegrationTests {
-
-  @Container
-  static MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
-
-  @Container
-  static GenericContainer<?> nats = new GenericContainer<>("nats:latest")
-      .withExposedPorts(4222);
+class NatsIngestionIntegrationTests extends BaseIntegrationTest {
 
   @DynamicPropertySource
-  static void setProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
-    registry.add("nats.url", NatsIngestionIntegrationTests::natsUrl);
+  static void setLocalProperties(DynamicPropertyRegistry registry) {
     registry.add("nats.subject", () -> "test.audit.logs");
   }
 
@@ -90,9 +74,5 @@ class NatsIngestionIntegrationTests {
     }
     
     assertThat(persisted).as("Log should be persisted in MongoDB").isTrue();
-  }
-
-  static String natsUrl(){
-    return "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222);
   }
 }

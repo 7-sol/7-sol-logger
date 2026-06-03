@@ -10,6 +10,7 @@ import io.nats.client.Options;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -65,6 +66,7 @@ public class NatsSubscriber {
   }
 
   private Dispatcher dispatcher;
+  private Thread processorThread;
   private final BlockingQueue<AuditLog> logQueue =
       new LinkedBlockingQueue<>(QUEUE_CAPACITY);
   private volatile boolean running = true;
@@ -96,7 +98,9 @@ public class NatsSubscriber {
     dispatcher.subscribe(subject);
 
     // Start a virtual thread for batch processing
-    Thread.ofVirtual().name("nats-batch-processor").start(this::processLogs);
+    processorThread = Thread.ofVirtual()
+        .name("nats-batch-processor")
+        .start(this::processLogs);
   }
 
   /**
@@ -134,6 +138,7 @@ public class NatsSubscriber {
         log.error("Error in batch processor loop", e);
       }
     }
+    log.info("Batch processor thread finished.");
   }
 
   /**
@@ -158,10 +163,20 @@ public class NatsSubscriber {
    */
   @PreDestroy
   public void stop() throws InterruptedException {
+    log.info("Stopping NatsSubscriber...");
     running = false;
+    
     if (dispatcher != null && natsConnection != null) {
       natsConnection.closeDispatcher(dispatcher);
+    }
+    
+    if (processorThread != null) {
+      processorThread.join(Duration.ofSeconds(5));
+    }
+    
+    if (natsConnection != null) {
       natsConnection.close();
     }
+    log.info("NatsSubscriber stopped.");
   }
 }

@@ -2,33 +2,11 @@
 package com._7_sol.logger;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Basic application context loading tests.
  */
-@SpringBootTest
-@Testcontainers
-class LoggerApplicationTests {
-
-  @Container
-  static MongoDBContainer mongo = new MongoDBContainer("mongo:8.0");
-
-  @Container
-  static GenericContainer<?> nats = new GenericContainer<>("nats:latest")
-      .withExposedPorts(4222);
-
-  @DynamicPropertySource
-  static void setProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.mongodb.uri", mongo::getReplicaSetUrl);
-    registry.add("nats.url", LoggerApplicationTests::natsUrl);
-  }
+class LoggerApplicationTests extends BaseIntegrationTest {
 
   /**
    * Verifies that the application context loads successfully.
@@ -36,10 +14,5 @@ class LoggerApplicationTests {
   @Test
   void contextLoads() {
     // Basic check to ensure the Spring context starts without errors.
-  }
-
-
-  static String natsUrl(){
-    return "nats://" + nats.getHost() + ":" + nats.getMappedPort(4222);
   }
 }

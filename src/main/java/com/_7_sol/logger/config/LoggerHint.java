@@ -3,10 +3,10 @@ package com._7_sol.logger.config;
 import com._7_sol.logger.util.AuditLog;
 import com._7_sol.logger.util.LogEntry;
 import com._7_sol.logger.util.ObjectIdDeserializer;
+import jakarta.annotation.Nullable;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
-import org.springframework.lang.Nullable;
 
 import java.util.Arrays;
 import java.util.List;

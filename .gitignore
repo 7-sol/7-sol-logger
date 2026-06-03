@@ -35,3 +35,4 @@ build/
 /.gcp-adc.json
 /jackson-databind-3.1.2.jar
 /build_output.txt
+/effective-pom.xml
