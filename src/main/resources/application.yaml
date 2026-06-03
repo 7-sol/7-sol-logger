@@ -25,7 +25,7 @@ spring:
   application:
     name: 'logger'
   mongodb:
-    uri: 'mongodb://${MONGO_AIS_USER}:${MONGODB_AIS_USER_PASSWORD}@${MONGO_HOSTS}/${MONGO_DATABASE:ais}?replicaSet=${REPLICA_SET:rs0}&authSource=${MONGO_DATABASE:ais}'
+    uri: 'mongodb://${MONGO_AIS_USER:ais_user}:${MONGODB_AIS_USER_PASSWORD:ais-user-password}@${MONGO_HOSTS:localhost:27017}/${MONGO_DATABASE:ais}?replicaSet=${REPLICA_SET:rs0}&authSource=${MONGO_DATABASE:ais}'
 
 # NATS Configuration
 nats:
