@@ -31,7 +31,9 @@ class AuditLogRepositoryTests extends BaseIntegrationTest {
         "CREATE_ORDER",
         "SUCCESS",
         "corr-1",
+        "rel-1",
         "user-1",
+        "dbId-1",
         "pod-1",
         Instant.now(),
         List.of(new LogEntry(Instant.now(), "INFO", "Order created"))

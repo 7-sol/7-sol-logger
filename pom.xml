@@ -13,7 +13,7 @@
   </parent>
   <groupId>com._7_sol</groupId>
   <artifactId>logger</artifactId>
-  <version>7.1.0</version>
+  <version>7.1.1</version>
   <name>logger</name>
   <description>Log Ingestion Server</description>
 
@@ -98,7 +98,17 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+
+        <!-- Plugin exwecutionto support app name and version detection -->
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -119,6 +129,7 @@
           <linkXRef>false</linkXRef>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
@@ -138,6 +149,7 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>

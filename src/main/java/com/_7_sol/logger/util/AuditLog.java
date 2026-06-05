@@ -37,7 +37,9 @@ public record AuditLog(
     String action,
     String status,
     String correlationId,
+    String relationId,
     String userId,
+    String dbOid,
     String podUid,
     Instant timestamp,
     List<LogEntry> logs

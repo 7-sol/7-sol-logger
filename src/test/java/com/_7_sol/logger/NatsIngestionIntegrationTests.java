@@ -49,7 +49,9 @@ class NatsIngestionIntegrationTests extends BaseIntegrationTest {
         "UPDATE_PROFILE",
         "SUCCESS",
         "nats-corr-1",
+        "rel-2",
         "user-2",
+        "dbId-2",
         "pod-2",
         Instant.now(),
         List.of(new LogEntry(Instant.now(), "INFO", "Profile updated"))

@@ -9,6 +9,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class StartupVerificationService {
 
   private final NatsSubscriber natsSubscriber;
   private final ObjectMapper objectMapper;
-
+  private final BuildProperties buildProperties;
   /**
    * Sends a test log via NATS after the application has started.
    */
@@ -32,17 +33,19 @@ public class StartupVerificationService {
       AuditLog startupLog = new AuditLog(
           null,
           "LOGGER_STARTUP_VERIFICATION",
-          "SYSTEM_BOOT",
+          StartupVerificationService.class.getSimpleName() + ".verifyStartup",
           "SUCCESS",
           UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
           "SYSTEM",
+          "DB ID",
           System.getenv("HOSTNAME"),
           Instant.now(),
           List.of(new LogEntry(
               Instant.now(),
               "INFO",
-              "Logger up & publishing successfully!"
-          ))
+              "Log receiver up. NATS up. App: %s Ver: %s"
+                      .formatted(buildProperties.getName(), buildProperties.getVersion())))
       );
 
       byte[] payload = objectMapper.writeValueAsBytes(startupLog);
