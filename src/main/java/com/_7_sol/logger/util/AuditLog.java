@@ -33,14 +33,15 @@ public record AuditLog(
     @JsonSerialize(using = ToStringSerializer.class)
     @JsonDeserialize(using = ObjectIdDeserializer.class)
     ObjectId id,
-    String operationId,
     String action,
-    String status,
     String correlationId,
+    String operationId,
     String relationId,
+    String status,
     String userId,
     String dbOid,
     String podUid,
+    String requestorIp,
     Instant timestamp,
     List<LogEntry> logs
 ) {

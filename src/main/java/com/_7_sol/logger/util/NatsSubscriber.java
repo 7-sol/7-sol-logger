@@ -17,6 +17,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,7 @@ public class NatsSubscriber {
   private String natsUrl;
 
   @Value("${nats.subject:audit.logs}")
+  @Getter
   private String subject;
 
   private Connection natsConnection;
@@ -56,14 +58,6 @@ public class NatsSubscriber {
     return natsConnection;
   }
 
-  /**
-   * Returns the NATS subject.
-   *
-   * @return The NATS subject.
-   */
-  public String getSubject() {
-    return subject;
-  }
 
   private Dispatcher dispatcher;
   private Thread processorThread;
@@ -87,8 +81,7 @@ public class NatsSubscriber {
         AuditLog logEntry = objectMapper.readValue(
             msg.getData(), AuditLog.class);
         if (!logQueue.offer(logEntry)) {
-          log.warn("Log queue is full, dropping log entry: {}",
-              logEntry.operationId());
+          log.warn("Log queue is full, dropping log entry: {}", logEntry.correlationId());
         }
       } catch (Exception e) {
         log.error("Failed to deserialize audit log", e);

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -32,19 +34,20 @@ public class StartupVerificationService {
     try {
       AuditLog startupLog = new AuditLog(
           null,
-          "LOGGER_STARTUP_VERIFICATION",
           StartupVerificationService.class.getSimpleName() + ".verifyStartup",
+          UUID.randomUUID().toString(),
+          Long.toHexString(ThreadLocalRandom.current().nextLong()),
+          null,
           "SUCCESS",
           UUID.randomUUID().toString(),
-          UUID.randomUUID().toString(),
-          "SYSTEM",
-          "DB ID",
+          null,
+          null,
           System.getenv("HOSTNAME"),
           Instant.now(),
           List.of(new LogEntry(
               Instant.now(),
               "INFO",
-              "Log receiver up. NATS up. App: %s Ver: %s"
+              "Log receiver up. NATS up. App:%s Ver:%s"
                       .formatted(buildProperties.getName(), buildProperties.getVersion())))
       );
 

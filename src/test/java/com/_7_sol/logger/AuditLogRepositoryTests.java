@@ -27,14 +27,15 @@ class AuditLogRepositoryTests extends BaseIntegrationTest {
   void shouldSaveAndRetrieveAuditLog() {
     AuditLog logEntry = new AuditLog(
         null,
-        "op-1",
         "CREATE_ORDER",
+        "op-id",
+        "rel-id",
+        "test-action",
         "SUCCESS",
-        "corr-1",
-        "rel-1",
         "user-1",
         "dbId-1",
         "pod-1",
+        "192.168.1.100",
         Instant.now(),
         List.of(new LogEntry(Instant.now(), "INFO", "Order created"))
     );
