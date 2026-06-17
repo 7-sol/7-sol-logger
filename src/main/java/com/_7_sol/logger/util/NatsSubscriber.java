@@ -81,7 +81,7 @@ public class NatsSubscriber {
         AuditLog logEntry = objectMapper.readValue(
             msg.getData(), AuditLog.class);
         if (!logQueue.offer(logEntry)) {
-          log.warn("Log queue is full, dropping log entry: {}", logEntry.correlationId());
+          log.warn("Log queue is full, dropping log entry: {}", logEntry.traceId());
         }
       } catch (Exception e) {
         log.error("Failed to deserialize audit log", e);
@@ -142,7 +142,7 @@ public class NatsSubscriber {
   private void persistBatch(List<AuditLog> batch) {
     try {
       mongoTemplate.insertAll(batch);
-      log.info("Successfully persisted batch of {} logs", batch.size());
+      log.debug("Successfully persisted batch of {} logs", batch.size());
     } catch (Exception e) {
       log.error("Failed to persist batch of {} logs", batch.size(), e);
       // In a real scenario, we might want to retry or move to a DLQ

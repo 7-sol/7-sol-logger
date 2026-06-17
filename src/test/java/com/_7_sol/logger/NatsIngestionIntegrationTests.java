@@ -69,7 +69,7 @@ class NatsIngestionIntegrationTests extends BaseIntegrationTest {
     for (int i = 0; i < 20; i++) {
       Optional<AuditLog> found = repository.findById(testId);
       if (found.isPresent()) {
-        assertThat(found.get().correlationId()).isEqualTo("nats-corr-1");
+        assertThat(found.get().traceId()).isEqualTo("nats-corr-1");
         persisted = true;
         break;
       }

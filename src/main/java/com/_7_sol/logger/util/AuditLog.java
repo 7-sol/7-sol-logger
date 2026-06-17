@@ -20,7 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * @param operationId Unique identifier for the specific operation instance.
  * @param action Semantic name of the action being performed.
  * @param status Current status of the operation (e.g., SUCCESS, FAILURE).
- * @param correlationId Identifier used to correlate this request.
+ * @param traceId Identifier used to correlate this request.
  * @param userId Identifier of the user initiating the request.
  * @param podUid Unique identifier for the Kubernetes Pod instance.
  * @param timestamp Timestamp when the audit record was first initialized.
@@ -34,9 +34,9 @@ public record AuditLog(
     @JsonDeserialize(using = ObjectIdDeserializer.class)
     ObjectId id,
     String action,
-    String correlationId,
+    String traceId,
     String operationId,
-    String relationId,
+    String spanId,
     String status,
     String userId,
     String dbOid,
@@ -52,7 +52,7 @@ public record AuditLog(
    * @param operationId The operation identifier.
    * @param action The action name.
    * @param status The status.
-   * @param correlationId The correlation identifier.
+   * @param traceId The correlation identifier.
    * @param userId The user identifier.
    * @param podUid The pod identifier.
    * @param timestamp The record timestamp.

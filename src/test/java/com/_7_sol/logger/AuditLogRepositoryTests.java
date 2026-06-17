@@ -45,6 +45,6 @@ class AuditLogRepositoryTests extends BaseIntegrationTest {
 
     List<AuditLog> all = repository.findAll();
     assertThat(all).hasSize(1);
-    assertThat(all.get(0).correlationId()).isEqualTo("corr-1");
+    assertThat(all.get(0).traceId()).isEqualTo("corr-1");
   }
 }
