@@ -32,7 +32,7 @@ public class StartupVerificationService {
   @EventListener(ApplicationReadyEvent.class)
   public void verifyStartup() {
     try {
-      AuditLog startupLog = new AuditLog(
+      AuditLogDto startupLog = new AuditLogDto(
           null,
           StartupVerificationService.class.getSimpleName() + ".verifyStartup",
           UUID.randomUUID().toString(),

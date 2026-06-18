@@ -12,7 +12,9 @@ import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +63,7 @@ public class NatsSubscriber {
 
   private Dispatcher dispatcher;
   private Thread processorThread;
-  private final BlockingQueue<AuditLog> logQueue =
+  private final BlockingQueue<AuditLogDto> logQueue =
       new LinkedBlockingQueue<>(QUEUE_CAPACITY);
   private volatile boolean running = true;
 
@@ -78,8 +80,8 @@ public class NatsSubscriber {
 
     dispatcher = natsConnection.createDispatcher(msg -> {
       try {
-        AuditLog logEntry = objectMapper.readValue(
-            msg.getData(), AuditLog.class);
+        AuditLogDto logEntry = objectMapper.readValue(
+            msg.getData(), AuditLogDto.class);
         if (!logQueue.offer(logEntry)) {
           log.warn("Log queue is full, dropping log entry: {}", logEntry.traceId());
         }
@@ -100,7 +102,7 @@ public class NatsSubscriber {
    * Continuous loop to process logs from the queue in batches.
    */
   private void processLogs() {
-    List<AuditLog> batch = new ArrayList<>(BATCH_SIZE);
+    List<AuditLogDto> batch = new ArrayList<>(BATCH_SIZE);
     while (running || !logQueue.isEmpty()) {
       try {
         long startTime = System.currentTimeMillis();
@@ -109,7 +111,7 @@ public class NatsSubscriber {
           
           long remainingTime = BATCH_TIMEOUT_MS - 
               (System.currentTimeMillis() - startTime);
-          AuditLog entry = logQueue.poll(
+          AuditLogDto entry = logQueue.poll(
               Math.max(0, remainingTime), TimeUnit.MILLISECONDS);
           
           if (entry != null) {
@@ -139,14 +141,40 @@ public class NatsSubscriber {
    *
    * @param batch The list of audit logs to persist.
    */
-  private void persistBatch(List<AuditLog> batch) {
-    try {
-      mongoTemplate.insertAll(batch);
-      log.debug("Successfully persisted batch of {} logs", batch.size());
-    } catch (Exception e) {
-      log.error("Failed to persist batch of {} logs", batch.size(), e);
-      // In a real scenario, we might want to retry or move to a DLQ
-    }
+  private void persistBatch(List<AuditLogDto> batch) {
+      var consolidatedBatch = consolidate(batch);
+      try {
+          mongoTemplate.insertAll(consolidatedBatch);
+          log.debug("Successfully persisted batch of {} logs", consolidatedBatch.size());
+      } catch (Exception e) {
+          log.error("Failed to persist batch of {} logs", consolidatedBatch.size(), e);
+          // In a real scenario, we might want to retry or move to a DLQ
+      }
+  }
+
+  private List<AuditLog> consolidate(List<AuditLogDto> batch) {
+      var traceIdMap = new HashMap<String, List<AuditLog>>();
+
+      for (AuditLogDto dto : batch) {
+          if(dto.traceId() == null){
+              var uuid = UUID.randomUUID().toString();
+              traceIdMap.put(uuid, List.of(toLog(uuid, dto)));
+          }
+          else{
+              traceIdMap.computeIfAbsent(dto.traceId(), k -> new ArrayList<>()).add(toLog(dto.traceId(), dto));
+          }
+      }
+  }
+
+  private AuditLog toLog(String traceId, AuditLogDto dto) {
+      var actionMap = new HashMap<String, List<LogAction>>();
+
+      var log = new AuditLog();
+      log.setTimestamp(dto.timestamp());
+      log.setTraceId(traceId);
+      log.setDbOid(dto.dbOid());
+      log.setData(dto.data());
+      return log;
   }
 
   /**

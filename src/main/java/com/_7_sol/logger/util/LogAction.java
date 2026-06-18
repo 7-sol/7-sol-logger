@@ -2,6 +2,7 @@
 package com._7_sol.logger.util;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * Represents an individual log statement captured within an operation.
@@ -10,9 +11,7 @@ import java.time.Instant;
  * @param level Severity level (e.g., INFO, ERROR).
  * @param message The log message content.
  */
-public record LogEntry(
-    Instant timestamp,
-    String level,
-    String spanId,
-    String message
+public record LogAction (
+    String action,
+    List<LogEntry> logEntry
 ) {}
