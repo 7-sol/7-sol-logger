@@ -31,37 +31,37 @@ public class StartupVerificationService {
    */
   @EventListener(ApplicationReadyEvent.class)
   public void verifyStartup() {
-    try {
-      AuditLogDto startupLog = new AuditLogDto(
-          null,
-          StartupVerificationService.class.getSimpleName() + ".verifyStartup",
-          UUID.randomUUID().toString(),
-          Long.toHexString(ThreadLocalRandom.current().nextLong()),
-          null,
-          "SUCCESS",
-          UUID.randomUUID().toString(),
-          null,
-          null,
-          System.getenv("HOSTNAME"),
-          Instant.now(),
-          List.of(new LogEntry(
-              Instant.now(),
-              "INFO",
-              "Log receiver up. NATS up. App:%s Ver:%s"
-                      .formatted(buildProperties.getName(), buildProperties.getVersion())))
-      );
-
-      byte[] payload = objectMapper.writeValueAsBytes(startupLog);
-      natsSubscriber.getConnection().publish(
-          natsSubscriber.getSubject(),
-          payload
-      );
-      
-      log.info(">>> Startup verification log published successfully to subject: {}",
-          natsSubscriber.getSubject());
-      
-    } catch (Exception e) {
-      log.error(">>> Failed to publish startup verification log to NATS", e);
-    }
+//    try {
+//      AuditLogDto startupLog = new AuditLogDto(
+//          null,
+//          StartupVerificationService.class.getSimpleName() + ".verifyStartup",
+//          UUID.randomUUID().toString(),
+////          Long.toHexString(ThreadLocalRandom.current().nextLong()),
+//          null,
+//          "SUCCESS",
+//          UUID.randomUUID().toString(),
+//          null,
+//          null,
+//          System.getenv("HOSTNAME"),
+//          Instant.now(),
+//          List.of(new LogEntry(
+//              Instant.now(),
+//              "INFO",
+//              "Log receiver up. NATS up. App:%s Ver:%s"
+//                      .formatted(buildProperties.getName(), buildProperties.getVersion())))
+//      );
+//
+//      byte[] payload = objectMapper.writeValueAsBytes(startupLog);
+//      natsSubscriber.getConnection().publish(
+//          natsSubscriber.getSubject(),
+//          payload
+//      );
+//
+//      log.info(">>> Startup verification log published successfully to subject: {}",
+//          natsSubscriber.getSubject());
+//
+//    } catch (Exception e) {
+//      log.error(">>> Failed to publish startup verification log to NATS", e);
+//    }
   }
 }

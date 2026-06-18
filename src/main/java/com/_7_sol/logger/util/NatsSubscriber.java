@@ -153,30 +153,31 @@ public class NatsSubscriber {
   }
 
   private List<AuditLog> consolidate(List<AuditLogDto> batch) {
-      var traceIdMap = new HashMap<String, List<AuditLog>>();
-
-      for (AuditLogDto dto : batch) {
-          if(dto.traceId() == null){
-              var uuid = UUID.randomUUID().toString();
-              traceIdMap.put(uuid, List.of(toLog(uuid, dto)));
-          }
-          else{
-              traceIdMap.computeIfAbsent(dto.traceId(), k -> new ArrayList<>()).add(toLog(dto.traceId(), dto));
-          }
-      }
+//      var traceIdMap = new HashMap<String, List<AuditLog>>();
+//
+//      for (AuditLogDto dto : batch) {
+//          if(dto.traceId() == null){
+//              var uuid = UUID.randomUUID().toString();
+//              traceIdMap.put(uuid, List.of(toLog(uuid, dto)));
+//          }
+//          else{
+//              traceIdMap.computeIfAbsent(dto.traceId(), k -> new ArrayList<>()).add(toLog(dto.traceId(), dto));
+//          }
+//      }
+      return List.of();
   }
 
-  private AuditLog toLog(String traceId, AuditLogDto dto) {
-      var actionMap = new HashMap<String, List<LogAction>>();
-
-      var log = new AuditLog();
-      log.setTimestamp(dto.timestamp());
-      log.setTraceId(traceId);
-      log.setDbOid(dto.dbOid());
-      log.setData(dto.data());
-      return log;
-  }
-
+//  private AuditLog toLog(String traceId, AuditLogDto dto) {
+//      var actionMap = new HashMap<String, List<LogAction>>();
+//
+//      var log = new AuditLogDto();
+//      log.setTimestamp(dto.timestamp());
+//      log.setTraceId(traceId);
+//      log.setDbOid(dto.dbOid());
+//      log.setData(dto.data());
+//      return log;
+//  }
+//
   /**
    * Gracefully shuts down the NATS connection.
    *

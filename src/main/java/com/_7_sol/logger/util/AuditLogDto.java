@@ -16,7 +16,6 @@ import org.springframework.data.annotation.Id;
  * Represents an audit log document persisted in MongoDB.
  *
  * @param id The unique identifier of the log entry in MongoDB.
- * @param operationId Unique identifier for the specific operation instance.
  * @param action Semantic name of the action being performed.
  * @param status Current status of the operation (e.g., SUCCESS, FAILURE).
  * @param traceId Identifier used to correlate this request.
@@ -34,7 +33,6 @@ public record AuditLogDto(
     ObjectId id,
     String action,
     String traceId,
-    String operationId,
     String spanId,
     String status,
     String userId,
@@ -48,7 +46,6 @@ public record AuditLogDto(
    * Canonical constructor for AuditLog.
    *
    * @param id The unique identifier.
-   * @param operationId The operation identifier.
    * @param action The action name.
    * @param status The status.
    * @param traceId The correlation identifier.
