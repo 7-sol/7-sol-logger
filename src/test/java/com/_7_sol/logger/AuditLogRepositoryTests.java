@@ -8,6 +8,7 @@ import java.util.List;
 
 import com._7_sol.logger.util.AuditLog;
 import com._7_sol.logger.util.AuditLogRepository;
+import com._7_sol.logger.util.LogAction;
 import com._7_sol.logger.util.LogEntry;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +26,28 @@ class AuditLogRepositoryTests extends BaseIntegrationTest {
    */
   @Test
   void shouldSaveAndRetrieveAuditLog() {
-//    AuditLog logEntry = new AuditLog(
-//        null,
-//        "CREATE_ORDER",
-//        "op-id",
-//        "rel-id",
-//        "test-action",
-//        "SUCCESS",
-//        "user-1",
-//        "dbId-1",
-//        "pod-1",
-//        "192.168.1.100",
-//        Instant.now(),
-//        List.of(new LogEntry(Instant.now(), "INFO", "Order created"))
-//    );
-//
-//    AuditLog saved = repository.save(logEntry);
-//    assertThat(saved.id()).isNotNull();
-//
-//    List<AuditLog> all = repository.findAll();
-//    assertThat(all).hasSize(1);
-//    assertThat(all.get(0).traceId()).isEqualTo("corr-1");
+    AuditLog auditLog = new AuditLog();
+    auditLog.setTraceId("corr-1");
+    auditLog.setStatus("SUCCESS");
+    auditLog.setUserId("user-1");
+    auditLog.setDbOid("dbId-1");
+    auditLog.setPodUid("pod-1");
+    auditLog.setRequestorIp("192.168.1.100");
+    auditLog.setTimestamp(Instant.now());
+    
+    LogAction action = new LogAction(
+            "CREATE_ORDER",
+            List.of(new LogEntry(Instant.now(), "INFO", "span-1", "Order created"))
+    );
+    auditLog.setLogs(List.of(action));
+
+    AuditLog saved = repository.save(auditLog);
+    assertThat(saved.getId()).isNotNull();
+
+    List<AuditLog> all = repository.findAll();
+    assertThat(all).hasSize(1);
+    assertThat(all.getFirst().getTraceId()).isEqualTo("corr-1");
+    assertThat(all.getFirst().getLogs()).hasSize(1);
+    assertThat(all.getFirst().getLogs().getFirst().action()).isEqualTo("CREATE_ORDER");
   }
 }

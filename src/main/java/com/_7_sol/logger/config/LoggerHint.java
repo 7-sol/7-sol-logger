@@ -1,6 +1,8 @@
 package com._7_sol.logger.config;
 
+import com._7_sol.logger.util.AuditLog;
 import com._7_sol.logger.util.AuditLogDto;
+import com._7_sol.logger.util.LogAction;
 import com._7_sol.logger.util.LogEntry;
 import com._7_sol.logger.util.ObjectIdDeserializer;
 import jakarta.annotation.Nullable;
@@ -25,7 +27,9 @@ public class LoggerHint  implements RuntimeHintsRegistrar {
 
         // 2. Just put the Class objects directly into the list
         List<Class<?>> classes = Arrays.asList(
+                AuditLog.class,
                 AuditLogDto.class,
+                LogAction.class,
                 LogEntry.class,
                 ObjectIdDeserializer.class
         );

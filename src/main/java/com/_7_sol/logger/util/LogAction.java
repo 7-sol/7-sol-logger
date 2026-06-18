@@ -14,4 +14,8 @@ import java.util.List;
 public record LogAction (
     String action,
     List<LogEntry> logEntry
-) {}
+) {
+    public LogAction {
+        logEntry = (logEntry == null) ? List.of() : List.copyOf(logEntry);
+    }
+}

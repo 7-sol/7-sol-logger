@@ -4,7 +4,9 @@ package com._7_sol.logger;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com._7_sol.logger.util.AuditLog;
+import com._7_sol.logger.util.AuditLogDto;
 import com._7_sol.logger.util.AuditLogRepository;
+import com._7_sol.logger.util.LogAction;
 import com._7_sol.logger.util.LogEntry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.nats.client.Connection;
@@ -42,40 +44,41 @@ class NatsIngestionIntegrationTests extends BaseIntegrationTest {
    */
   @Test
   void shouldIngestFromNatsToMongo() throws Exception {
-//    ObjectId testId = new ObjectId();
-//    AuditLog logEntry = new AuditLog(
-//        testId,
-//        "nats-corr-1",
-//        "op-id",
-//        "rel-id",
-//        "UPDATE_PROFILE",
-//        "SUCCESS",
-//        "user-2",
-//        "dbId-2",
-//        "pod-2",
-//        "192.168.1.200",
-//        Instant.now(),
-//        List.of(new LogEntry(Instant.now(), "INFO", "Profile updated"))
-//    );
-//
-//    // Connect, publish and wait
-//    try (Connection conn = Nats.connect(natsUrl())) {
-//      conn.publish("test.audit.logs", objectMapper.writeValueAsBytes(logEntry));
-//      conn.flush(Duration.ofSeconds(2));
-//    }
-//
-//    // Poll repository until message is persisted or timeout reached
-//    boolean persisted = false;
-//    for (int i = 0; i < 20; i++) {
-//      Optional<AuditLog> found = repository.findById(testId);
-//      if (found.isPresent()) {
-//        assertThat(found.get().traceId()).isEqualTo("nats-corr-1");
-//        persisted = true;
-//        break;
-//      }
-//      Thread.sleep(500);
-//    }
-//
-//    assertThat(persisted).as("Log should be persisted in MongoDB").isTrue();
+    ObjectId testId = new ObjectId();
+    AuditLogDto dto = new AuditLogDto(
+            testId,
+            "UPDATE_PROFILE",
+            "nats-corr-1",
+            "span-1",
+            "SUCCESS",
+            "user-2",
+            "dbId-2",
+            "pod-2",
+            "192.168.1.200",
+            Instant.now(),
+            List.of(new LogEntry(Instant.now(), "INFO", "span-1", "Profile updated"))
+    );
+
+    // Connect, publish and wait
+    try (Connection conn = Nats.connect(natsUrl())) {
+      conn.publish("test.audit.logs", objectMapper.writeValueAsBytes(dto));
+      conn.flush(Duration.ofSeconds(2));
+    }
+
+    // Poll repository until message is persisted or timeout reached
+    boolean persisted = false;
+    for (int i = 0; i < 20; i++) {
+      Optional<AuditLog> found = repository.findAll().stream()
+              .filter(al -> "nats-corr-1".equals(al.getTraceId()))
+              .findFirst();
+      if (found.isPresent()) {
+        assertThat(found.get().getTraceId()).isEqualTo("nats-corr-1");
+        persisted = true;
+        break;
+      }
+      Thread.sleep(500);
+    }
+
+    assertThat(persisted).as("Log should be persisted in MongoDB").isTrue();
   }
 }

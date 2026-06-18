@@ -1,6 +1,7 @@
 /* Copyright (c) 2026 7-Sol. All rights reserved. */
 package com._7_sol.logger.util;
 
+import com._7_sol.logger.config.AuditLogMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.nats.client.Connection;
@@ -40,6 +41,7 @@ public class NatsSubscriber {
 
   private final MongoTemplate mongoTemplate;
   private final ObjectMapper objectMapper;
+  private final AuditLogMapper auditLogMapper;
 
   @Value("${nats.url}")
   private String natsUrl;
@@ -142,7 +144,7 @@ public class NatsSubscriber {
    * @param batch The list of audit logs to persist.
    */
   private void persistBatch(List<AuditLogDto> batch) {
-      var consolidatedBatch = consolidate(batch);
+      var consolidatedBatch = auditLogMapper.toNormalizedList(batch);
       try {
           mongoTemplate.insertAll(consolidatedBatch);
           log.debug("Successfully persisted batch of {} logs", consolidatedBatch.size());
@@ -152,32 +154,6 @@ public class NatsSubscriber {
       }
   }
 
-  private List<AuditLog> consolidate(List<AuditLogDto> batch) {
-//      var traceIdMap = new HashMap<String, List<AuditLog>>();
-//
-//      for (AuditLogDto dto : batch) {
-//          if(dto.traceId() == null){
-//              var uuid = UUID.randomUUID().toString();
-//              traceIdMap.put(uuid, List.of(toLog(uuid, dto)));
-//          }
-//          else{
-//              traceIdMap.computeIfAbsent(dto.traceId(), k -> new ArrayList<>()).add(toLog(dto.traceId(), dto));
-//          }
-//      }
-      return List.of();
-  }
-
-//  private AuditLog toLog(String traceId, AuditLogDto dto) {
-//      var actionMap = new HashMap<String, List<LogAction>>();
-//
-//      var log = new AuditLogDto();
-//      log.setTimestamp(dto.timestamp());
-//      log.setTraceId(traceId);
-//      log.setDbOid(dto.dbOid());
-//      log.setData(dto.data());
-//      return log;
-//  }
-//
   /**
    * Gracefully shuts down the NATS connection.
    *
