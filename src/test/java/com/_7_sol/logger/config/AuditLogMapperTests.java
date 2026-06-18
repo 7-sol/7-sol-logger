@@ -88,6 +88,34 @@ class AuditLogMapperTests {
     }
 
     @Test
+    void shouldSortLogsChronologically() {
+        String traceId = "trace-sort";
+        Instant now = Instant.now();
+
+        // DTO with a later action but earlier log entry
+        AuditLogDto dtoLaterAction = new AuditLogDto(
+                new ObjectId(), "LATER_ACTION", traceId, "span-1", "SUCCESS", "user-1", "db-1", "pod-1", "127.0.0.1", now,
+                List.of(new LogEntry(now.minusSeconds(10), "INFO", "span-1", "Earlier Log"))
+        );
+
+        // DTO with an earlier action but later log entry
+        AuditLogDto dtoEarlierAction = new AuditLogDto(
+                new ObjectId(), "EARLIER_ACTION", traceId, "span-2", "SUCCESS", "user-1", "db-1", "pod-1", "127.0.0.1", now,
+                List.of(new LogEntry(now, "INFO", "span-2", "Later Log"))
+        );
+
+        List<AuditLog> result = mapper.toNormalizedList(List.of(dtoLaterAction, dtoEarlierAction));
+
+        assertThat(result).hasSize(1);
+        List<LogAction> logs = result.getFirst().getLogs();
+        assertThat(logs).hasSize(2);
+
+        // LATER_ACTION should come first because its log entry is earlier
+        assertThat(logs.get(0).action()).isEqualTo("LATER_ACTION");
+        assertThat(logs.get(1).action()).isEqualTo("EARLIER_ACTION");
+    }
+
+    @Test
     void shouldReturnEmptyListForNullOrEmptyInput() {
         assertThat(mapper.toNormalizedList(null)).isEmpty();
         assertThat(mapper.toNormalizedList(List.of())).isEmpty();

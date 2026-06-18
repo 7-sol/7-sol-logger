@@ -9,8 +9,10 @@ package com._7_sol.logger.config;
 import com._7_sol.logger.util.AuditLog;
 import com._7_sol.logger.util.AuditLogDto;
 import com._7_sol.logger.util.LogAction;
+import com._7_sol.logger.util.LogEntry;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -84,7 +86,7 @@ public class AuditLogMapper {
         auditLog.setRequestorIp(first.requestorIp());
         auditLog.setTimestamp(first.timestamp());
 
-        // Group logs by action
+        // Group logs by action and sort them
         List<LogAction> logActions = group.stream()
                 .collect(Collectors.groupingBy(AuditLogDto::action))
                 .entrySet().stream()
@@ -92,8 +94,12 @@ public class AuditLogMapper {
                         actionEntry.getKey(),
                         actionEntry.getValue().stream()
                                 .flatMap(dto -> dto.logs().stream())
+                                .sorted(Comparator.comparing(LogEntry::timestamp))
                                 .toList()
                 ))
+                .sorted(Comparator.comparing(la -> la.logEntry().isEmpty()
+                        ? java.time.Instant.MIN
+                        : la.logEntry().getFirst().timestamp()))
                 .toList();
 
         auditLog.setLogs(logActions);
