@@ -4,4 +4,4 @@ name: log-receiver
 description: Helm chart for Log Ingestion Server
 type: application
 version: 0.1.0
-appVersion: "7.0.0"
+appVersion: 7.1.4
